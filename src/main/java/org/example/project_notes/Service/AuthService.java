@@ -6,6 +6,8 @@ import org.example.project_notes.Repository.UserRepository;
 import org.example.project_notes.Token.JwtCore;
 import org.example.project_notes.enumType.TokenType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,12 +58,17 @@ public class AuthService {
 //
 //        return jwtCore.generateAccessToken(TokenType.ACCESS_TOKEN);
 //    }
-    public boolean loginUser(UserDTO userDTO) {
+    public UserEntity loginUser(UserDTO userDTO) {
         Optional<UserEntity> userOptional = userRepository.findByEmail(userDTO.getEmail());
         if (userOptional.isPresent() && passwordEncoder.matches(userDTO.getPassword(), userOptional.get().getPassword())) {
-            return true;
+            return userOptional.get();
         } else {
-            return false;
+            throw new BadCredentialsException("Invalid email or password");
         }
+    }
+
+    public UserEntity getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

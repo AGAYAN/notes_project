@@ -1,6 +1,7 @@
 package org.example.project_notes.Config;
 
 
+
 import lombok.RequiredArgsConstructor;
 import org.example.project_notes.Repository.UserRepository;
 import org.springframework.context.ApplicationContext;

@@ -1,8 +1,10 @@
 package org.example.project_notes.Controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.project_notes.DTO.NoteDTO;
 import org.example.project_notes.DTO.UserDTO;
 import org.example.project_notes.Entity.NoteEntity;
+import org.example.project_notes.Entity.UserEntity;
 import org.example.project_notes.Service.AuthService;
 import org.example.project_notes.Service.HistoryNotes;
 import org.example.project_notes.Service.NoteService;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -21,7 +24,6 @@ import java.util.List;
 public class AuthController {
     private final AuthService authService;
     private final NoteService noteService;
-
     private final HistoryNotes historyNotes;
 
     public AuthController(AuthService authService, NoteService noteService, HistoryNotes historyNotes) {
@@ -55,17 +57,26 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute("userDTO") UserDTO userDTO, Model model) {
+    public String loginUser(@ModelAttribute("userDTO") UserDTO userDTO, Model model, HttpServletRequest request) {
         try {
-            if (authService.loginUser(userDTO)) {
-                return "redirect:/api/v1/notes/protected"; // Перенаправляем на защищенную страницу при успешной аутентификации
-            } else {
-                model.addAttribute("error", "Invalid email or password");
-                return "login"; // Возвращаем на страницу входа с сообщением об ошибке
-            }
+            UserEntity user = authService.loginUser(userDTO);
+            request.getSession().setAttribute("user", user);
+            return "redirect:/api/v1/notes/profile";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
-            return "login"; // Возвращаем на страницу входа с сообщением об ошибке
+            return "auth/login";
+        }
+    }
+
+    @GetMapping("/profile")
+    public String getUserProfile(Model model, Principal principal) {
+        if (principal != null) {
+            UserEntity user = authService.getUserByEmail(principal.getName());
+            model.addAttribute("user", user);
+            return "/api/v1/notes/profile";
+        } else {
+            // Обработка случая, когда пользователь не аутентифицирован
+            return "redirect:/api/v1/notes/login"; // Например, перенаправление на страницу входа
         }
     }
 
@@ -83,13 +94,6 @@ public class AuthController {
         model.addAttribute("email", noteDTO.getEmail());
         noteService.saveNote(noteDTO.getTitle(), noteDTO.getContent(), noteDTO.getEmail());
         return "protected"; // Перенаправление на главную страницу
-    }
-
-    @GetMapping("/history")
-    public String getNotes(Model model) {
-        List<NoteEntity> user = historyNotes.getHistoryNotes();
-        model.addAttribute("user", user);
-        return "history";
     }
 }
 

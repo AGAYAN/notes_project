@@ -1,7 +1,7 @@
 package org.example.project_notes.Service;
-
 import lombok.RequiredArgsConstructor;
 import org.example.project_notes.Entity.NoteEntity;
+import org.example.project_notes.Entity.UserEntity;
 import org.example.project_notes.Repository.NoteRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ public class HistoryNotes {
 
     private final NoteRepository noteRepository;
 
-    public List<NoteEntity> getHistoryNotes() {
-        return noteRepository.findAll();
+    public List<NoteEntity> getHistoryForUser(UserEntity user) {
+        return noteRepository.findByUser(user);
     }
 }

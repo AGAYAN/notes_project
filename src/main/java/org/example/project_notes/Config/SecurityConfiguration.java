@@ -28,6 +28,7 @@ public class SecurityConfiguration {
     @Autowired
     private UserDetailsService userDetailsService;
     private static final String[] ALLOWED_PATHS = {
+            "/auth/**",
             "/api/v1/notes/**",
             "/api/v1/auth/password-reset",
             "/api/v1/auth/password-reset/*",
