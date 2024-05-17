@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class HistoryNotes {
+public class HistoryService {
 
     private final NoteRepository noteRepository;
 

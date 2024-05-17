@@ -3,10 +3,9 @@ package org.example.project_notes.Controller;
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.project_notes.DTO.NoteDTO;
 import org.example.project_notes.DTO.UserDTO;
-import org.example.project_notes.Entity.NoteEntity;
 import org.example.project_notes.Entity.UserEntity;
 import org.example.project_notes.Service.AuthService;
-import org.example.project_notes.Service.HistoryNotes;
+import org.example.project_notes.Service.HistoryService;
 import org.example.project_notes.Service.NoteService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.security.Principal;
-import java.util.List;
 
 
 @Controller
@@ -24,9 +22,9 @@ import java.util.List;
 public class AuthController {
     private final AuthService authService;
     private final NoteService noteService;
-    private final HistoryNotes historyNotes;
+    private final HistoryService historyNotes;
 
-    public AuthController(AuthService authService, NoteService noteService, HistoryNotes historyNotes) {
+    public AuthController(AuthService authService, NoteService noteService, HistoryService historyNotes) {
         this.historyNotes = historyNotes;
         this.noteService = noteService;
         this.authService = authService;
@@ -61,7 +59,7 @@ public class AuthController {
         try {
             UserEntity user = authService.loginUser(userDTO);
             request.getSession().setAttribute("user", user);
-            return "redirect:/api/v1/notes/profile";
+            return "redirect:/api/v1/notes/protected";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             return "auth/login";

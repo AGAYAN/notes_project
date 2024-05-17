@@ -2,12 +2,8 @@ package org.example.project_notes.Controller;
 
 import org.example.project_notes.Entity.NoteEntity;
 import org.example.project_notes.Entity.UserEntity;
-import org.example.project_notes.Repository.NoteRepository;
 import org.example.project_notes.Repository.UserRepository;
-import org.example.project_notes.Service.HistoryNotes;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.example.project_notes.Service.HistoryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,16 +13,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/v1/notes")
 public class HistoryController {
+    private final UserRepository userRepository;
+    private final HistoryService historyService;
 
-    private UserRepository userRepository;
-
-    public HistoryController(UserRepository userRepository) {
+    public HistoryController(UserRepository userRepository, HistoryService historyService) {
         this.userRepository = userRepository;
+        this.historyService = historyService;
     }
 
     @GetMapping("/history")
@@ -37,17 +33,11 @@ public class HistoryController {
 
     @PostMapping("/history")
     public String getNotes(@RequestParam("email") String email, Model model) {
-        // Находим пользователей по email
-        Optional<UserEntity> users = userRepository.findByEmail(email);
-
-        // Получаем список заметок для каждого пользователя
-        List<NoteEntity> notes = users.stream()
-                .flatMap(user -> user.getNotes().stream())
-                .collect(Collectors.toList());
-
-        // Передаем список заметок в модель для отображения
-        model.addAttribute("notes", notes);
-
+        Optional<UserEntity> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            List<NoteEntity> notes = historyService.getHistoryForUser(user.get());
+            model.addAttribute("notes", notes);
+        }
         return "notes";
     }
 }

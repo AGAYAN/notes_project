@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>История заметок</title>
+    <meta charset="UTF-8">
+    <title>History</title>
 </head>
 <body>
-<h1>Введите email для просмотра истории заметок</h1>
+<h1>Search History</h1>
 <form th:action="@{/api/v1/notes/history}" method="post">
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" th:value="${email}" required>
-    <button type="submit">Показать историю</button>
+    <button type="submit">Search</button>
 </form>
 </body>
 </html>
